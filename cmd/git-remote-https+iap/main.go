@@ -54,13 +54,13 @@ var (
 	}
 
 	checkCmd = &cobra.Command{
-		Use:   "check remote url",
+		Use:   "check [url]",
 		Short: "Refresh token for remote url if needed, then exit",
 		Run:   check,
 	}
 
 	printCmd = &cobra.Command{
-		Use:   "print remote url",
+		Use:   "print [url]",
 		Short: "Refresh token for remote url if needed, then print to sdtoud",
 		Run:   print,
 	}
@@ -108,15 +108,15 @@ func execute(cmd *cobra.Command, args []string) {
 }
 
 func check(cmd *cobra.Command, args []string) {
-	remote, url := args[0], args[1]
-	log.Debug().Msgf("%s check %s %s", binaryName, remote, url)
+	url := args[0]
+	log.Debug().Msgf("%s check %s %s", binaryName, url)
 
 	handleIAPAuthCookieFor(url)
 }
 
 func print(cmd *cobra.Command, args []string) {
-	remote, url := args[0], args[1]
-	log.Debug().Msgf("%s print %s %s", binaryName, remote, url)
+	url := args[0]
+	log.Debug().Msgf("%s print %s %s", binaryName, url)
 
 	auth := handleIAPAuthCookieFor(url)
 	fmt.Printf("%s\n", auth.RawToken)
