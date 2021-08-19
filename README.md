@@ -4,6 +4,14 @@
 This is a fork of [git-remote-https+iap](https://github.com/adohkan/git-remote-https-iap/) to support a few more use cases for Gcloud IAP auth tokens.
 While [google-api-go-client](https://github.com/googleapis/google-api-go-client/issues/873) supports service accounts, this tool is for user authentication.
 
+For example, after [configuring](#configuring):
+
+```
+curl -v -H "Authorization: Bearer $(DEBUG=true remote-iap print https://iap.example.net)" https://iap.example.net
+```
+
+Multiple domains can use the same authentication, if they share an IDP client.
+
 # git-remote-https+iap
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/adohkan/git-remote-https-iap)](https://github.com/adohkan/git-remote-https-iap/releases/latest)
