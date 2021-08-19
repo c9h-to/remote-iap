@@ -22,6 +22,11 @@ const (
 )
 
 // A Cookie holds pieces of information required to manage the IAP cookie
+type AuthState struct {
+	Cookie   Cookie
+	RawToken string
+}
+
 type Cookie struct {
 	JarPath string
 	Domain  string
@@ -29,8 +34,8 @@ type Cookie struct {
 	Claims  jwt.StandardClaims
 }
 
-// ReadCookie lookup the http.cookieFile for a given domain and try to load it from the filesystem
-func ReadCookie(domain string) (*Cookie, error) {
+func ReadAuthState(domain string) (*AuthState, error) {
+
 	cookieFile := git.ConfigGetURLMatch("http.cookieFile", domain)
 
 	url, err := url.Parse(domain)
@@ -56,7 +61,19 @@ func ReadCookie(domain string) (*Cookie, error) {
 	c.Token = token
 	c.Claims = claims
 
-	return &c, nil
+	return &AuthState{
+		Cookie:   c,
+		RawToken: rawToken,
+	}, nil
+}
+
+// ReadCookie lookup the http.cookieFile for a given domain and try to load it from the filesystem
+func ReadCookie(domain string) (*Cookie, error) {
+	a, err := ReadAuthState(domain)
+	if err != nil {
+		return nil, err
+	}
+	return &a.Cookie, nil
 }
 
 func (c *Cookie) readRawTokenFromJar() (string, error) {
@@ -91,8 +108,7 @@ func (c *Cookie) readRawTokenFromJar() (string, error) {
 	return "", fmt.Errorf("readRawTokenFromJar - %s not found", IAPCookieName)
 }
 
-// NewCookie takes care of the authentication workflow and creates the relevant IAP Cookie on the filesystem
-func NewCookie(domain string) (*Cookie, error) {
+func NewAuth(domain string) (*AuthState, error) {
 
 	helperID := git.ConfigGetURLMatch("iap.helperID", domain)
 	helperSecret := git.ConfigGetURLMatch("iap.helperSecret", domain)
@@ -121,7 +137,20 @@ func NewCookie(domain string) (*Cookie, error) {
 		Token:   token,
 		Claims:  claims,
 	}
-	return &c, c.write(token.Raw, claims.ExpiresAt)
+	a := &AuthState{
+		Cookie:   c,
+		RawToken: rawToken,
+	}
+	return a, c.write(token.Raw, claims.ExpiresAt)
+}
+
+// NewCookie takes care of the authentication workflow and creates the relevant IAP Cookie on the filesystem
+func NewCookie(domain string) (*Cookie, error) {
+	a, err := NewAuth(domain)
+	if err != nil {
+		return nil, err
+	}
+	return &a.Cookie, nil
 }
 
 func (c *Cookie) write(token string, exp int64) error {

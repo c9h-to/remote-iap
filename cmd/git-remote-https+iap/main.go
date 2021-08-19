@@ -18,6 +18,7 @@ import (
 const (
 	// DebugEnvVariable is the name of the environment variable that needs to be set in order to enable debug logging
 	DebugEnvVariable = "GIT_IAP_VERBOSE"
+	DebugEnv         = "DEBUG"
 )
 
 var (
@@ -57,12 +58,19 @@ var (
 		Short: "Refresh token for remote url if needed, then exit",
 		Run:   check,
 	}
+
+	printCmd = &cobra.Command{
+		Use:   "print remote url",
+		Short: "Refresh token for remote url if needed, then print to sdtoud",
+		Run:   print,
+	}
 )
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(installProtocolCmd)
 	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(printCmd)
 
 	configureCmd.Flags().StringVar(&repoURL, "repoURL", "", "URL of the git repository to configure (required)")
 	configureCmd.MarkFlagRequired("repoURL")
@@ -77,6 +85,9 @@ func init() {
 	// set log level
 	zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	if debug, _ := strconv.ParseBool(os.Getenv(DebugEnvVariable)); debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	if debug, _ := strconv.ParseBool(os.Getenv(DebugEnv)); debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 }
@@ -101,6 +112,14 @@ func check(cmd *cobra.Command, args []string) {
 	log.Debug().Msgf("%s check %s %s", binaryName, remote, url)
 
 	handleIAPAuthCookieFor(url)
+}
+
+func print(cmd *cobra.Command, args []string) {
+	remote, url := args[0], args[1]
+	log.Debug().Msgf("%s print %s %s", binaryName, remote, url)
+
+	auth := handleIAPAuthCookieFor(url)
+	fmt.Printf("%s\n", auth.RawToken)
 }
 
 func printVersion(cmd *cobra.Command, args []string) {
@@ -135,7 +154,7 @@ func configureIAP(cmd *cobra.Command, args []string) {
 	git.SetGlobalConfig(https, "http", "cookieFile", cookiePath)
 }
 
-func handleIAPAuthCookieFor(url string) {
+func handleIAPAuthCookieFor(url string) *iap.AuthState {
 	// All our work will be based on the basedomain of the provided URL
 	// as IAP would be setup for the whole domain.
 	url, err := toHTTPSBaseDomain(url)
@@ -145,21 +164,23 @@ func handleIAPAuthCookieFor(url string) {
 
 	log.Debug().Msgf("Manage IAP auth for %s", url)
 
-	cookie, err := iap.ReadCookie(url)
+	auth, err := iap.ReadAuthState(url)
 	switch {
 	case err != nil:
 		log.Debug().Msgf("could not read IAP cookie for %s: %s", url, err.Error())
-		cookie, err = iap.NewCookie(url)
-	case cookie.Expired():
+		auth, err = iap.NewAuth(url)
+	case auth.Cookie.Expired():
 		log.Debug().Msgf("IAP cookie for %s has expired", url)
-		cookie, err = iap.NewCookie(url)
-	case !cookie.Expired():
-		log.Debug().Msgf("IAP Cookie still valid until %s", time.Unix(cookie.Claims.ExpiresAt, 0))
+		auth, err = iap.NewAuth(url)
+	case !auth.Cookie.Expired():
+		log.Debug().Msgf("IAP Cookie still valid until %s", time.Unix(auth.Cookie.Claims.ExpiresAt, 0))
 	}
 
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
+
+	return auth
 }
 
 func toHTTPSBaseDomain(addr string) (string, error) {
