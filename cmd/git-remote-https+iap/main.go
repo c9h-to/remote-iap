@@ -61,7 +61,7 @@ var (
 
 	printCmd = &cobra.Command{
 		Use:   "print [url]",
-		Short: "Refresh token for remote url if needed, then print to sdtoud",
+		Short: "Refresh token for remote url if needed, then print to stdout",
 		Run:   print,
 	}
 )
