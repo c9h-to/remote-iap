@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 
 	"github.com/adohkan/git-remote-https-iap/internal/git"
 	"github.com/int128/oauth2cli"
@@ -34,6 +36,14 @@ type token struct {
 	IDToken     string `json:"id_token"`
 }
 
+func getAdditionalScopes() []string {
+	env := os.Getenv("GIT_IAP_ADDITIONAL_SCOPES")
+	if env == "" {
+		return []string{}
+	}
+	return strings.Fields(env)
+}
+
 // getRefreshTokenFromBrowserFlow initialize an OAuth login workflow via the browser and returns a refresh token valid for a given url
 // see: https://github.com/int128/oauth2cli/blob/master/example/main.go
 func getRefreshTokenFromBrowserFlow(domain, helperID, helperSecret string) (string, error) {
@@ -44,11 +54,16 @@ func getRefreshTokenFromBrowserFlow(domain, helperID, helperSecret string) (stri
 	var token *oauth2.Token
 	var err error
 
+	scopes := append([]string{
+		"openid",
+		"email",
+	}, getAdditionalScopes()[:]...)
+
 	var OAuthConfig = oauth2.Config{
 		ClientID:     helperID,
 		ClientSecret: helperSecret,
 		Endpoint:     google.Endpoint,
-		Scopes:       []string{"openid", "email"},
+		Scopes:       scopes,
 	}
 
 	eg.Go(func() error {
