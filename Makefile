@@ -18,7 +18,9 @@ CMD_PATH := cmd/git-remote-https+iap
 CMD_NAME := git-remote-https+iap
 BUILD_TARGETS := \
 	darwin-amd64 \
+	darwin-arm64 \
 	linux-amd64 \
+	linux-arm64 \
 	windows-amd64
 
 DIST_PATH := dist/
