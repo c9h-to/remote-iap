@@ -185,6 +185,10 @@ func parseJWToken(rawToken string) (jwt.Token, jwt.StandardClaims, error) {
 	var p jwt.Parser
 	var claims jwt.StandardClaims
 
+	if len(rawToken) < 50 {
+		log.Warn().Msgf("Short jwt token: %s", rawToken)
+	}
+
 	token, _, err := p.ParseUnverified(rawToken, &claims)
 	return *token, claims, err
 }
