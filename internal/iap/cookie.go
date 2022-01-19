@@ -79,6 +79,7 @@ func ReadCookie(domain string) (*Cookie, error) {
 func (c *Cookie) readRawTokenFromJar() (string, error) {
 	path := expandHome(c.JarPath)
 
+	log.Debug().Msgf("Reading file %s", path)
 	file, err := os.Open(path)
 	if err != nil {
 		return "", err
