@@ -131,10 +131,10 @@ func (c *Cookie) write(token string, exp int64) error {
 	}
 
 	f, err := os.Create(path)
-	defer f.Close()
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	if err := os.Chmod(path, 0600); err != nil {
 		return err
