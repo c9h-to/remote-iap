@@ -108,6 +108,9 @@ func NewCookie(domain string) (*Cookie, error) {
 	if err != nil {
 		return nil, err
 	}
+	if rawToken == "" {
+		log.Fatal().Msg("rawToken is empty")
+	}
 	log.Debug().Msgf("rawToken: %+v", rawToken)
 
 	token, claims, err := parseJWToken(rawToken)
