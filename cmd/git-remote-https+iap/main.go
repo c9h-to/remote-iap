@@ -103,8 +103,8 @@ func execute(cmd *cobra.Command, args []string) {
 	remote, url := args[0], args[1]
 	log.Debug().Msgf("%s %s %s", binaryName, remote, url)
 
-	handleIAPAuthCookieFor(url)
-	git.PassThruRemoteHTTPSHelper(remote, url)
+	c := handleIAPAuthCookieFor(url)
+	git.PassThruRemoteHTTPSHelper(remote, url, c.RawToken)
 }
 
 func check(cmd *cobra.Command, args []string) {

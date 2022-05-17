@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	"syscall"
 
 	"github.com/rs/zerolog/log"
 )
@@ -73,13 +72,15 @@ func SetGlobalConfig(url, section, key, value string) {
 
 // PassThruRemoteHTTPSHelper exec the git-remote-https helper,
 // which allows the caller to transparently pass-thru it.
-func PassThruRemoteHTTPSHelper(remote, url string) {
+func PassThruRemoteHTTPSHelper(remote, url string, token string) {
 	u, err := _url.Parse(url)
 	if err != nil {
 		log.Fatal().Msgf("passThruRemoteHTTPSHelper - could not parse %s: %s", url, err.Error())
 	}
 	u.Scheme = "https"
-	args := []string{"git", "remote-https", remote, u.String()}
+	extraHeader := fmt.Sprintf("http.extraHeader=Proxy-Authorization: Bearer %s", token)
+
+	args := []string{"git", "-c", extraHeader, "remote-https", remote, u.String()}
 	log.Debug().Msgf("passThruRemoteHTTPSHelper exec: %v", args)
 
 	binary, err := exec.LookPath(GitBinary)
@@ -87,9 +88,19 @@ func PassThruRemoteHTTPSHelper(remote, url string) {
 		log.Fatal().Msgf("passThruRemoteHTTPSHelper - %s", err.Error())
 	}
 
-	env := os.Environ()
-	if err := syscall.Exec(binary, args, env); err != nil {
-		log.Fatal().Msgf("passThruRemoteHTTPSHelper - %s", err.Error())
+	procAttr := &os.ProcAttr{Env: os.Environ(), Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}}
+	process, err := os.StartProcess(binary, args, procAttr)
+	if err != nil {
+		log.Fatal().Msgf("passThruRemoteHTTPSHelper: failed starting remote-https - %s", err.Error())
+	}
+
+	processState, err := process.Wait()
+	if err != nil {
+		log.Fatal().Msgf("passThruRemoteHTTPSHelper: failed waiting on remote-https - %s", err.Error())
+	}
+
+	if !processState.Success() {
+		os.Exit(processState.ExitCode())
 	}
 }
 
