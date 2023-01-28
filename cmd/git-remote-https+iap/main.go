@@ -27,6 +27,7 @@ var (
 
 	// only used in configureCmd
 	repoURL, helperID, helperSecret, clientID string
+	helperName                                string
 
 	rootCmd = &cobra.Command{
 		Use:   fmt.Sprintf("%s remote url", binaryName),
@@ -80,6 +81,7 @@ func init() {
 	configureCmd.MarkFlagRequired("helperSecret")
 	configureCmd.Flags().StringVar(&clientID, "clientID", "", "OAuth Client ID of the IAP instance (required)")
 	configureCmd.MarkFlagRequired("clientID")
+	configureCmd.Flags().StringVar(&helperName, "helperName", "https+iap", "Name of the gitremote-helper, for example \"iap\" if PATH has a git-remote-iap binary")
 	rootCmd.AddCommand(configureCmd)
 
 	// set log level
@@ -146,7 +148,7 @@ func configureIAP(cmd *cobra.Command, args []string) {
 
 	// let users manipulate standard 'https://' urls
 	insteadOf := &git.GitConfig{
-		Url:     fmt.Sprintf("https+iap://%s", repo.Host),
+		Url:     fmt.Sprintf("%s://%s", helperName, repo.Host),
 		Section: "url",
 		Key:     "insteadOf",
 		Value:   https,
