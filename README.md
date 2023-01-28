@@ -24,9 +24,11 @@ An open source [`git-remote-helper`](https://www.git-scm.com/docs/gitremote-help
 
 ### Installing
 
-- Download pre-compiled binaries from [`our release page`](https://github.com/adohkan/git-remote-https-iap/releases/latest).
-- Install `git-remote-https+iap` binary onto the system `$PATH`
-- Run `GIT_IAP_VERBOSE=1 git-remote-https+iap install`
+(Edited from upstream, see also https://github.com/adohkan/git-remote-https-iap#installing)
+
+- Download pre-compiled binaries from [`our release page`](https://github.com/c9h-to/remote-iap/releases).
+- Install `git-remote-iap` binary onto the system `$PATH`
+- Run `GIT_IAP_VERBOSE=1 git-remote-iap install`
 
 ### Configuring
 
