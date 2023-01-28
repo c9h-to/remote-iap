@@ -12,6 +12,9 @@ curl -v -H "Authorization: Bearer $(DEBUG=true remote-iap print https://iap.exam
 
 Multiple domains can use the same authentication, if they share an IDP client.
 
+To use the binary as [gitremote helper](https://www.git-scm.com/docs/gitremote-helpers)
+rename or symlink to `git-remote-iap` and use `--helperName=iap` when running `configure`.
+
 # git-remote-https+iap
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/adohkan/git-remote-https-iap)](https://github.com/adohkan/git-remote-https-iap/releases/latest)
@@ -36,7 +39,8 @@ An open source [`git-remote-helper`](https://www.git-scm.com/docs/gitremote-help
 - Configure the IAP protected repositories:
 
 ```
-git-remote-https+iap configure \
+git-remote-iap configure \
+  --helperName=iap \
   --repoURL=https://git.domain.acme/demo/hello-world.git \
   --helperID=xxx \
   --helperSecret=yyy \
