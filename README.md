@@ -18,7 +18,7 @@ Multiple domains can use the same authentication, if they share an IDP client.
 [![GitHub](https://img.shields.io/github/license/adohkan/git-remote-https-iap)](LICENSE.txt)
 [![Go Report Card](https://goreportcard.com/badge/github.com/adohkan/git-remote-https-iap)](https://goreportcard.com/report/github.com/adohkan/git-remote-https-iap)
 
-An open source [`git-remote-helper`](https://git-scm.com/docs/git-remote-helpers) that handles authentication for [GCP Identity Aware Proxy](https://cloud.google.com/iap).
+An open source [`git-remote-helper`](https://www.git-scm.com/docs/gitremote-helpers) that handles authentication for [GCP Identity Aware Proxy](https://cloud.google.com/iap).
 
 ## Getting Started
 
