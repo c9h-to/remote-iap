@@ -116,7 +116,7 @@ func execute(cmd *cobra.Command, args []string) {
 }
 
 func check(cmd *cobra.Command, args []string) {
-	remote, url := args[0], args[1]
+	remote, url := args[0], args[len(args)-1]
 	log.Debug().Msgf("%s check %s %s: forcebrowser=%s", binaryName, remote, url, strconv.FormatBool(forcebrowser))
 
 	handleIAPAuthCookieFor(url, forcebrowser)
@@ -124,7 +124,7 @@ func check(cmd *cobra.Command, args []string) {
 
 func print(cmd *cobra.Command, args []string) {
 	url := args[0]
-	log.Debug().Msgf("%s print %s %s", binaryName, url)
+	log.Debug().Msgf("%s print %s", binaryName, url)
 
 	auth := handleIAPAuthCookieFor(url, false)
 	fmt.Printf("%s\n", auth.RawToken)
