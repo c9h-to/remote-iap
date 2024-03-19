@@ -5,6 +5,9 @@ on:
 
 name: Releases
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Release
@@ -24,3 +27,4 @@ jobs:
         with:
           token: ${{ github.token }}
           files: dist/releases/*
+          fail_on_unmatched_files: true
