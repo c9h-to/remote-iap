@@ -7,9 +7,10 @@ name: Releases
 
 jobs:
   build:
-    name: Draft Release
+    name: Release
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -22,5 +23,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ github.token }}
-          draft: true
           files: dist/releases/*
